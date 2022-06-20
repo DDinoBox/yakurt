@@ -11,16 +11,16 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-from my_settings import (DATABASES, 
-SECRET_KEY, 
-ALGORITHM, 
-KAKAO_CLIENT_ID, 
-KAKAO_REDIRECT_URI, 
-AWS_ACCESS_KEY_ID, 
-AWS_SECRET_ACCESS_KEY, 
-AWS_STORAGE_BUCKET_NAME, 
-AWS_REGION, 
-AWS_IMAGE_URL) 
+from my_settings import (DATABASES,
+                         SECRET_KEY,
+                         ALGORITHM,
+                         KAKAO_CLIENT_ID,
+                         KAKAO_REDIRECT_URI,
+                         AWS_ACCESS_KEY_ID,
+                         AWS_SECRET_ACCESS_KEY,
+                         AWS_STORAGE_BUCKET_NAME,
+                         AWS_REGION,
+                         AWS_IMAGE_URL)
 
 import pymysql
 
@@ -39,7 +39,7 @@ SECRET_KEY = SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', '54.180.2.29:8000']
 
 
 # Application definition
@@ -97,13 +97,13 @@ WSGI_APPLICATION = 'yakurt.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = DATABASES
 
-KAKAO_CLIENT_ID         = KAKAO_CLIENT_ID
-KAKAO_REDIRECT_URI      = KAKAO_REDIRECT_URI
-AWS_ACCESS_KEY_ID       = AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY   = AWS_SECRET_ACCESS_KEY
+KAKAO_CLIENT_ID = KAKAO_CLIENT_ID
+KAKAO_REDIRECT_URI = KAKAO_REDIRECT_URI
+AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
 AWS_STORAGE_BUCKET_NAME = AWS_STORAGE_BUCKET_NAME
-AWS_REGION              = AWS_REGION
-AWS_IMAGE_URL           = AWS_IMAGE_URL
+AWS_REGION = AWS_REGION
+AWS_IMAGE_URL = AWS_IMAGE_URL
 
 ALGORITHM = ALGORITHM
 # Password validation
@@ -147,13 +147,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#REMOVE_APPEND_SLASH_WARNING
+# REMOVE_APPEND_SLASH_WARNING
 APPEND_SLASH = False
 
-##CORS
-CORS_ORIGIN_ALLOW_ALL  =True
+# CORS
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-    
+
 CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
@@ -162,7 +162,7 @@ CORS_ALLOW_METHODS = (
     'POST',
     'PUT',
 )
-    
+
 CORS_ALLOW_HEADERS = (
     'accept',
     'accept-encoding',
@@ -172,14 +172,14 @@ CORS_ALLOW_HEADERS = (
     'origin',
     'user-agent',
     'x-csrftoken',
-    'x-requested-with',    		
+    'x-requested-with',
 )
 
-KAKAO_CLIENT_ID    = KAKAO_CLIENT_ID
+KAKAO_CLIENT_ID = KAKAO_CLIENT_ID
 KAKAO_REDIRECT_URI = KAKAO_REDIRECT_URI
 
-AWS_ACCESS_KEY_ID       = AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY   = AWS_SECRET_ACCESS_KEY
+AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
 AWS_STORAGE_BUCKET_NAME = AWS_STORAGE_BUCKET_NAME
-AWS_REGION              = AWS_REGION
-AWS_IMAGE_URL           = AWS_IMAGE_URL
+AWS_REGION = AWS_REGION
+AWS_IMAGE_URL = AWS_IMAGE_URL
