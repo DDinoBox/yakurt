@@ -13,14 +13,13 @@ class KaKaoClient:
         self.kakao_user_api = 'https://kapi.kakao.com/v2/user/me'
         self.client_id      = kakao_client_id
 
-    def get_access_token(self, code, redirect_uri):
+    def get_access_token(self, code):
         data = {
-            'grant_type'     : 'authorization_code',
-            'redirection_uri': redirect_uri,
-            'client_id'      : self.client_id,
-            'code'           : code
+            'grant_type' : 'authorization_code',
+            'client_id'  : self.client_id,
+            'code'       : code
         }
-
+        
         response = requests.post(self.kakao_auth_api, data=data, timeout=5)
         
         if response.status_code == 400:
@@ -41,22 +40,21 @@ class KaKaoClient:
         
             return response.json()
         except:
-           raise Exception('ACCESS_TOKEN_INVALID_ERROR' , 401)
-
+            raise Exception('ACCESS_TOKEN_INVALID_ERROR' , 401)
 
 class kakaoCallBackView(View):
     def get(self,request):
         try:
             auth_code    = request.GET['code']
             kakao_clinet = KaKaoClient(KAKAO_CLIENT_ID)
-
+            
             access_token     = kakao_clinet.get_access_token(KAKAO_REDIRECT_URI)
             user_information = kakao_clinet.get_user_information(auth_code, access_token)
-
+            
             kakao_id  = user_information['id']
             nick_name = user_information['properties']['nickname']
             email     = user_information['kakao_account']['email']
-
+            
             user, is_created = User.objects.get_or_create(
                     kakao_id = kakao_id,
                     defaults = {
@@ -70,13 +68,15 @@ class kakaoCallBackView(View):
                 'nick_name'   : nick_name,
                 'email'       : email
             }
-
-            return JsonResponse({'Message' : 'SUCCESS', 'data' : data}, status = 200)
+            
+            return JsonResponse({'message' : 'SUCCESS', 'data' : data}, status = 200)
+        
         except KeyError:
-            return JsonResponse({'Message' : 'KEY ERROR'}, status = 400)
+            return JsonResponse({'message' : 'KEY ERROR'}, status = 400)
+        
         except Exception as e:
             return JsonResponse({'message' : e.args[0]} , status = e.args[1])
-        
+
 class UserView(View):
     @login_decorator
     def get(self, request):
@@ -88,7 +88,7 @@ class UserView(View):
             'address'     : user.address,
             'phone_number': user.phone_number
         }
-
+        
         return JsonResponse({'results':results}, status=200)
     
     @login_decorator
@@ -99,5 +99,5 @@ class UserView(View):
         user.phone_number = data['phone_number'] if data['phone_number'] else user.phone_number
         user.address      = data['address'] if data['address'] else user.address
         user.save()
-
-        return JsonResponse({'Message': 'SUCCESS'}, status=200)
+        
+        return JsonResponse({'message': 'SUCCESS'}, status=200)

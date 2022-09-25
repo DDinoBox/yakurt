@@ -17,7 +17,7 @@ class UserSurveyView(View):
             weight      = data['weight']
             height      = data['height']
             product_ids = data['product_id']
-
+            
             user_survey = UserSurvey.objects.create(
                 user   = user,
                 gender = gender,
@@ -33,12 +33,12 @@ class UserSurveyView(View):
                 ) for product_id in product_ids 
             ]
             SurveyProduct.objects.bulk_create(survey_products)
-
-            return JsonResponse({'Message': 'SUCCESS'}, status=200)
-
+            
+            return JsonResponse({'message': 'SUCCESS'}, status=200)
+        
         except KeyError:
-            return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
-
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+        
     @login_decorator
     def get(self, request):
         offset = int(request.GET.get('offset', 0))
@@ -54,6 +54,7 @@ class UserSurveyView(View):
         }for user_survey in user_survey]
         
         return JsonResponse({'results': results}, status=200)
+
 class UserSurveyDetailView(View):
     @login_decorator
     def get(self, request):
@@ -105,7 +106,7 @@ class UserSurveyListDetailView(View):
             return JsonResponse({'results': results}, status=200)
         
         except KeyError:
-            return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         
         except UserSurvey.DoesNotExist:
-            return JsonResponse({'Message': 'USERSURVEY_DOES_NOT_EXIST'}, status=404)
+            return JsonResponse({'message': 'USER_SURVEY_DOES_NOT_EXIST'}, status=404)

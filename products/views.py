@@ -6,10 +6,10 @@ from products.models import Product
 class ProductDetailView(View):
     def get(self, request, product_id):
         if not Product.objects.filter(id=product_id).exists():
-            return JsonResponse({'Message': 'PRODUCT_DOES_NOT_EXIST'}, status=404)
+            return JsonResponse({'message': 'PRODUCT_DOES_NOT_EXIST'}, status=404)
         
         product = Product.objects.filter(id=product_id)
-
+        
         results = [{
             'id'             : product.id,
             'title'          : product.title,
@@ -23,9 +23,9 @@ class ProductDetailView(View):
             'review_count'   : product.subscriptionitem_set.all().first().subscription.review_set.count(),
             'product_effect' : [effect.name for effect in product.effect_set.all()]
         } for product in product]
-
+        
         return JsonResponse({'results': results}, status=200)
-
+    
 class ProductListView(View):
     def get(self, request):
         offset   = int(request.GET.get('offset', 0))
@@ -44,5 +44,5 @@ class ProductListView(View):
             'is_subscription': product.is_subscription,
             'product_effect' : [effect.name for effect in product.effect_set.all()]
         }for product in products]
-
+        
         return JsonResponse({'results': results}, status=200)

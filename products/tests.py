@@ -60,7 +60,7 @@ class ProductDetailTest(TestCase):
         Subscription.objects.create(
             id                = 1,
             is_subscribing    = 1,
-            delivery_message  = 1,
+            delivery_Message  = 1,
             payment_method_id = 1,
             user_id           = 1
         )
@@ -112,6 +112,6 @@ class ProductDetailTest(TestCase):
         response = client.get('/products/99')
 
         self.assertEqual(response.json(),
-            {'Message': 'PRODUCT_DOES_NOT_EXIST'}
+            {'message': 'PRODUCT_DOES_NOT_EXIST'}
         )
         self.assertEqual(response.status_code, 404)

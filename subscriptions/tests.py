@@ -86,19 +86,19 @@ class ReviewListDetailTest(TestCase):
                             "product_title": "상품 1 제목",
                             "product_information": "상품 1 설명",
                             "product_image_url": "image_url"
-                         }
+                        }
                     ]
                 }
             }
         )
         self.assertEqual(response.status_code, 200)
-
+        
     def test_fail_review_list_detail_view_get_review_id_not_exist(self):
         client = Client()
-
+        
         response = client.get('/subscriptions/review/99')
-
+        
         self.assertEqual(response.json(),
-            {'Message': 'REVIEW_DOES_NOT_EXIST'}
+            {'message': 'REVIEW_DOES_NOT_EXIST'}
         )
         self.assertEqual(response.status_code, 404)

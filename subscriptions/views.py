@@ -1,19 +1,17 @@
 import uuid
 from datetime import datetime
 
-import boto3
-from django.http import JsonResponse
+import boto3  
+from django.http  import JsonResponse
 from django.views import View
 
-from core.utils import login_decorator
+from core.utils           import login_decorator
 from subscriptions.models import Review, Subscription
-from yakurt.settings import (
+from yakurt.settings      import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     AWS_STORAGE_BUCKET_NAME,
-    AWS_IMAGE_URL
 )
-
 
 class MyS3Client:
     def __init__(self, access_key, secret_key, bucket_name):
@@ -22,14 +20,14 @@ class MyS3Client:
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_key
         )
-        self.s3_client = boto3_s3
+        self.s3_client   = boto3_s3
         self.bucket_name = bucket_name
-
+        
     def upload(self, file):
         try:
-            file_id = str(uuid.uuid4())
+            file_id    = str(uuid.uuid4())
             extra_args = {'ContentType': file.content_type}
-
+            
             self.s3_client.upload_fileobj(
                 file,
                 self.bucket_name,
@@ -39,146 +37,144 @@ class MyS3Client:
             return f'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/{file_id}'
         except:
             return None
-
+        
     def delete(self, file_name):
         return self.s3_client.delete_object(bucket=self.bucket_name, Key=f'{file_name}')
-
 
 class FileHandler:
     def __init__(self, client):
         self.client = client
-
+        
     def upload(self, file):
         return self.client.upload(file)
 
-
-class Reviewdetailview(View):
+class ReviewDetailView(View):
     @login_decorator
     def post(self, request, subscription_id):
         try:
-            user = request.user
-            file = request.FILES['file']
+            user    = request.user
+            file    = request.FILES['file']
             content = request.POST['content']
-
+            
             subscription = Subscription.objects.get(id=subscription_id)
-
+            
             client = MyS3Client(
                 AWS_ACCESS_KEY_ID,
                 AWS_SECRET_ACCESS_KEY,
                 AWS_STORAGE_BUCKET_NAME
             )
             file_handler = FileHandler(client)
-            file_url = file_handler.upload(file)
-
+            file_url     = file_handler.upload(file)
+            
             Review.objects.create(
-                image_url=file_url,
-                content=content,
-                user=user,
-                subscription=subscription
+                image_url    = file_url,
+                content      = content,
+                user         = user,
+                subscription = subscription
             )
-            return JsonResponse({'Message': 'SUCCESS'}, status=200)
-
+            return JsonResponse({'message': 'SUCCESS'}, status=200)
+        
         except KeyError:
-            return JsonResponse({'Message': 'KEYERROR'}, status=400)
-
+            return JsonResponse({'message': 'KEYERROR'}, status=400)
+        
         except Subscription.DoesNotExist:
-            return JsonResponse({'Message': 'SUBSCRIPTION_DOES_NOT_EXIST'}, status=404)
-
+            return JsonResponse({'message': 'SUBSCRIPTION_DOES_NOT_EXIST'}, status=404)
+        
     @login_decorator
     def get(self, request, subscription_id):
         results = [{
-            'id': review.id,
-            'nick_name': review.user.nick_name,
-            'content': review.content,
-            'image_url': review.image_url,
-            'create_at': review.created_at,
-            'products': [subscription.product.name for subscription in review.subscription.subscriptionitem_set.all()]
+            'id'        : review.id,
+            'nick_name' : review.user.nick_name,
+            'content'   : review.content,
+            'image_url' : review.image_url,
+            'create_at' : review.created_at,
+            'products'  : [subscription.product.name for subscription in review.subscription.subscriptionitem_set.all()]
         } for review in Review.objects.filter(subscription_id=subscription_id)
         ]
-
+        
         return JsonResponse({'results': results, }, status=200)
-
+    
     @login_decorator
     def delete(self, request, subscription_id):
-        Review.objects.filter(subscription_id=subscription_id,
-                              user_id=request.user.id).delete()
-        return JsonResponse({'Message': 'NO_CONTENT'}, status=204)
-
+        Review.objects.filter(subscription_id=subscription_id, user_id=request.user.id).delete()
+        return JsonResponse({'message': 'NO_CONTENT'}, status=204)
 
 class SubscriptionListview(View):
     @login_decorator
     def get(self, request):
         user = request.user
-
+        
         subscription = Subscription.objects.filter(user_id=user.id)
-
+        
         results = [{
-            'subscription_id': subscription.id,
+            'subscription_id'        : subscription.id,
             'subscription_created_at': subscription.created_at,
-            'subscription_product': [subscription.product.name for subscription in subscription.subscriptionitem_set.all()],
-            'is_subscribing': subscription.is_subscribing,
-            'subscription_review': [{
-                'review_id': review.id,
-                'review_img': review.image_url,
+            'subscription_product'   : [subscription.product.name for subscription in subscription.subscriptionitem_set.all()],
+            'is_subscribing'         : subscription.is_subscribing,
+            'subscription_review'    : [{
+                'review_id'     : review.id,
+                'review_img'    : review.image_url,
                 'review_content': review.content,
             }for review in subscription.review_set.all()]
         }for subscription in subscription]
-
+        
         return JsonResponse({'results': results}, status=200)
 
 
-class Reviewlistview(View):
+class ReviewListview(View):
     def get(self, request):
         reviews = Review.objects.all().order_by('-id')
+        
         reviews_count = len(reviews)
-        now = datetime.now()
-
+        now           = datetime.now()
+        
         results = []
-
         for review in reviews:
-            days = (now) - (review.subscription.created_at.replace(tzinfo=None))
+            days                 = (now) - (review.subscription.created_at.replace(tzinfo=None))
             subscriptions_months = days.days//30
-            time = str(review.created_at)
-            created_at = time[0:10]
+            time                 = str(review.created_at)
+            created_at           = time[0:10]
+            
             results.append({
                 'id': review.id,
-                'nick_name': review.user.nick_name,
-                'content': review.content,
-                'image_url': review.image_url,
-                'create_at': created_at,
+                'nick_name'           : review.user.nick_name,
+                'content'             : review.content,
+                'image_url'           : review.image_url,
+                'create_at'           : created_at,
                 'subscriptions_months': subscriptions_months,
-                'products': [subscription.product.name for subscription in review.subscription.subscriptionitem_set.all()]
+                'products'            : [subscription.product.name for subscription in review.subscription.subscriptionitem_set.all()]
             })
-
+            
         return JsonResponse({'results': results, 'reviews_count': reviews_count}, status=200)
 
-
-class Reviewlistdetailview(View):
+class ReviewListDetailView(View):
     def get(self, request, review_id):
         try:
             review = Review.objects.get(id=review_id)
-            now = datetime.now()
-            days = (now) - (review.subscription.created_at.replace(tzinfo=None))
+            
+            now                  = datetime.now()
+            days                 = (now) - (review.subscription.created_at.replace(tzinfo=None))
             subscriptions_months = days.days//30
-            time = str(review.created_at)
-            created_at = time[0:10]
+            time                 = str(review.created_at)
+            created_at           = time[0:10]
+            
             results = {
                 'id': review.id,
-                'nick_name': review.user.nick_name,
-                'content': review.content,
-                'image_url': review.image_url,
-                'create_at': created_at,
+                'nick_name'           : review.user.nick_name,
+                'content'             : review.content,
+                'image_url'           : review.image_url,
+                'create_at'           : created_at,
                 'subscriptions_months': subscriptions_months,
-                'products': [{
-                    'product_id': subscription.product.id,
-                    'product_name': subscription.product.name,
-                    'product_title': subscription.product.title,
+                'products'            : [{
+                    'product_id'         : subscription.product.id,
+                    'product_name'       : subscription.product.name,
+                    'product_title'      : subscription.product.title,
                     'product_information': subscription.product.information,
-                    'product_image_url': subscription.product.image_url,
+                    'product_image_url'  : subscription.product.image_url,
                 }for subscription in review.subscription.subscriptionitem_set.all()]
             }
-
+            
             return JsonResponse({'results': results}, status=200)
-
+        
         except Review.DoesNotExist:
-            return JsonResponse({'Message': 'REVIEW_DOES_NOT_EXIST'}, status=404)
+            return JsonResponse({'message': 'REVIEW_DOES_NOT_EXIST'}, status=404)
